@@ -17,12 +17,41 @@ export interface RoleConfig {
 
 export type WorkspaceTab = 
   | 'police_case_upload'
-  | 'police_checkout'
+  | 'police_integrity'
+  | 'police_audit_trail'
   | 'investigator_case_search'
+  | 'investigator_integrity'
   | 'investigator_graph'
   | 'forensic_lab_upload'
+  | 'forensic_integrity'
   | 'lawyer_read_vault'
+  | 'lawyer_integrity'
   | 'lawyer_audit_trail';
+
+export type CaseFileCategory =
+  | 'CASE_REGISTRATION'
+  | 'VICTIM_DETAILS'
+  | 'ACCUSED_DETAILS'
+  | 'WITNESSES'
+  | 'CRIME_SCENE'
+  | 'INITIAL_EVIDENCE'
+  | 'COMMUNICATION_RECORDS'
+  | 'FINANCIAL_RECORDS'
+  | 'REPORTS'
+  | 'LEGAL_DOCUMENTS'
+  | 'INVESTIGATION_REPORTS'
+  | 'STATEMENTS'
+  | 'EVIDENCE'
+  | 'DIGITAL_EVIDENCE'
+  | 'CDR_ANALYSIS'
+  | 'FINANCIAL_INVESTIGATION'
+  | 'SUSPECT_ANALYSIS'
+  | 'LOCATION_EVIDENCE'
+  | 'SURVEILLANCE'
+  | 'INVESTIGATION_FINDINGS'
+  | 'COURT_SUBMISSION'
+  | 'FORENSIC_LAB'
+  | 'SEIZURE_MEMO';
 
 export interface UserProfile {
   id: string; // e.g. PO-1042
@@ -48,9 +77,22 @@ export interface UploadedCaseFile {
   uploadedByOfficerName: string;
   uploadedByRole: OfficerRole;
   uploadTime: string;
-  category: 'POLICE_INCIDENT' | 'FORENSIC_LAB' | 'SEIZURE_MEMO';
+  category: CaseFileCategory;
   sha256Hash: string;
   description: string;
+  txHash?: string;
+  blockNumber?: number;
+  blockHash?: string;
+  blockchainVerified?: boolean;
+  digitalSignature?: string;
+  signerPublicKey?: string;
+  signatureTimestamp?: string;
+  signatureVerified?: boolean;
+  version?: string; // e.g. 'v1.0', 'v1.1', 'v2.0'
+  versionNumber?: number; // e.g. 1.0, 1.1, 2.0
+  parentFileId?: string | null;
+  changeSummary?: string;
+  isLatestVersion?: boolean;
 }
 
 export interface CaseRecord {
@@ -59,6 +101,8 @@ export interface CaseRecord {
   incidentLocation: string;
   status: 'OPEN_INVESTIGATION' | 'FORENSIC_REVIEW' | 'COURT_READY';
   assignedOfficerIds: string[]; // List of authorized officer IDs
+  assignedLawyerId?: string | null; // Unique assigned Lawyer ID (only 1 lawyer allowed per case)
+  assignedLawyerName?: string | null; // Name of assigned Lawyer
   uploadedFiles: UploadedCaseFile[];
 }
 

@@ -1,16 +1,29 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import type { UploadedCaseFile } from '../../types/auth';
+import type { CaseFileCategory, UploadedCaseFile } from '../../types/auth';
 import { DocumentViewerModal } from './DocumentViewerModal';
 import { PlusCircle, ShieldCheck, FileText, Folder, Upload, CheckCircle2, Eye } from 'lucide-react';
+
+const INITIAL_REGISTRATION_CATEGORIES: Array<{ value: CaseFileCategory; label: string; documents: string }> = [
+  { value: 'CASE_REGISTRATION', label: 'Case Registration', documents: 'FIR, complaint, case number, date/time of registration, police station details' },
+  { value: 'VICTIM_DETAILS', label: 'Victim Details', documents: 'Victim statement, victim information, medical examination request' },
+  { value: 'ACCUSED_DETAILS', label: 'Accused Details', documents: 'Accused information, arrest memo, interrogation records' },
+  { value: 'WITNESSES', label: 'Witnesses', documents: 'Witness statements, witness details, contact information' },
+  { value: 'CRIME_SCENE', label: 'Crime Scene', documents: 'Crime scene photographs, videos, scene inspection report, rough sketch' },
+  { value: 'INITIAL_EVIDENCE', label: 'Initial Evidence', documents: 'Seizure mahazar/panchnama, property seizure records, evidence lists' },
+  { value: 'COMMUNICATION_RECORDS', label: 'Communication Records', documents: 'CDR, SMS records, call logs, relevant communication records' },
+  { value: 'FINANCIAL_RECORDS', label: 'Financial Records', documents: 'Bank transaction records, suspicious transaction reports, payment records' },
+  { value: 'REPORTS', label: 'Reports', documents: 'Police investigation reports, preliminary reports, daily case diary entries' },
+  { value: 'LEGAL_DOCUMENTS', label: 'Legal Documents', documents: 'Search warrant, arrest warrant, notices, court orders received' },
+];
 
 export const PoliceOfficerView: React.FC = () => {
   const { user, activeCaseId, activeCase, uploadFileToActiveCase } = useAuth();
   
   // File Upload State
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [fileCategory, setFileCategory] = useState<'POLICE_INCIDENT' | 'SEIZURE_MEMO'>('POLICE_INCIDENT');
-  const [fileDescription, setFileDescription] = useState('First responder report: Suspect intercepted at scene. Attached physical seizure memo and bodycam log.');
+  const [fileCategory, setFileCategory] = useState<CaseFileCategory>('CASE_REGISTRATION');
+  const [fileDescription, setFileDescription] = useState('');
   const [uploadSuccess, setUploadSuccess] = useState<string | null>(null);
   const [viewingFile, setViewingFile] = useState<UploadedCaseFile | null>(null);
 
@@ -22,7 +35,7 @@ export const PoliceOfficerView: React.FC = () => {
 
   const handleUploadSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const fileName = selectedFile ? selectedFile.name : 'Police_Seizure_Incident_Report.pdf';
+    const fileName = selectedFile ? selectedFile.name : `${fileCategory.toLowerCase()}.pdf`;
     
     const success = await uploadFileToActiveCase(selectedFile, fileName, fileCategory, fileDescription);
 
@@ -54,7 +67,7 @@ export const PoliceOfficerView: React.FC = () => {
             <span className="text-xs font-mono text-cyan-300 font-bold">CASE NO: {activeCaseId}</span>
           </div>
           <h1 className="text-2xl font-black tracking-wide">{activeCase?.title || `Case ${activeCaseId}`}</h1>
-          <p className="text-sm text-slate-300">Upload case file details, seizure reports, and incident logs anytime for {activeCaseId}.</p>
+          <p className="text-sm text-slate-300">Initial case registration and investigation document upload for {activeCaseId}.</p>
         </div>
 
         <div className="px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-right font-mono">
@@ -79,9 +92,9 @@ export const PoliceOfficerView: React.FC = () => {
             <div className="flex items-center justify-between border-b border-slate-200 pb-3">
               <div>
                 <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                  <PlusCircle className="w-5 h-5 text-blue-600" /> Upload Case File Details ({activeCaseId})
+                  <PlusCircle className="w-5 h-5 text-blue-600" /> Police Officer — Initial Case Registration
                 </h2>
-                <p className="text-xs text-slate-500">Police Officers can upload new case files & evidence documents anytime</p>
+                <p className="text-xs text-slate-500">Select a registration category, then attach its supporting record to Case {activeCaseId}.</p>
               </div>
               <span className="text-[10px] font-mono font-bold px-2.5 py-1 rounded bg-blue-50 text-blue-700 border border-blue-200">
                 UPLOAD ACTIVE
@@ -108,11 +121,12 @@ export const PoliceOfficerView: React.FC = () => {
                   </label>
                   <select
                     value={fileCategory}
-                    onChange={(e) => setFileCategory(e.target.value as any)}
+                    onChange={(e) => setFileCategory(e.target.value as CaseFileCategory)}
                     className="w-full px-3.5 py-2 rounded-xl bg-white border border-slate-300 text-slate-900 text-xs"
                   >
-                    <option value="POLICE_INCIDENT">Police Incident & First Responder Report</option>
-                    <option value="SEIZURE_MEMO">Seizure Memo & Physical Gear Record</option>
+                    {INITIAL_REGISTRATION_CATEGORIES.map((category) => (
+                      <option key={category.value} value={category.value}>{category.label}</option>
+                    ))}
                   </select>
                 </div>
               </div>
@@ -143,13 +157,13 @@ export const PoliceOfficerView: React.FC = () => {
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                  Incident Summary & Findings Description
+                  Document Notes / Description
                 </label>
                 <textarea
                   rows={3}
                   value={fileDescription}
                   onChange={(e) => setFileDescription(e.target.value)}
-                  placeholder="Enter details of evidence seized, incident location, and officer observations..."
+                  placeholder="Describe the document, relevant people, location, dates, or observations..."
                   className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-900 text-xs focus:outline-none focus:border-blue-600"
                   required
                 />
@@ -162,6 +176,26 @@ export const PoliceOfficerView: React.FC = () => {
                 <PlusCircle className="w-4 h-4" /> Upload & Publish Case Details to {activeCaseId}
               </button>
             </form>
+
+            <div className="rounded-xl border border-blue-100 bg-blue-50/60 overflow-hidden">
+              <div className="px-4 py-3 border-b border-blue-100">
+                <h3 className="text-xs font-bold text-blue-950">Initial registration upload guide</h3>
+                <p className="text-[11px] text-blue-800">Documents and data accepted from the Police Officer during registration and initial investigation.</p>
+              </div>
+              <div className="divide-y divide-blue-100">
+                {INITIAL_REGISTRATION_CATEGORIES.map((category) => (
+                  <button
+                    type="button"
+                    key={category.value}
+                    onClick={() => setFileCategory(category.value)}
+                    className={`w-full text-left px-4 py-3 grid grid-cols-1 sm:grid-cols-[10rem_1fr] gap-1 sm:gap-4 transition-colors cursor-pointer ${fileCategory === category.value ? 'bg-blue-100/80' : 'hover:bg-white/70'}`}
+                  >
+                    <span className="text-xs font-bold text-slate-900">{category.label}</span>
+                    <span className="text-[11px] leading-relaxed text-slate-600">{category.documents}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
 
           </div>
         </div>

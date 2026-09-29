@@ -3,14 +3,16 @@ import { useAuth } from '../../context/AuthContext';
 import { ROLE_CONFIGS } from '../../data/mockUsers';
 import type { WorkspaceTab, RolePrefix } from '../../types/auth';
 import { 
-  PlusCircle,
-  Package, 
+  PlusCircle, 
   Search, 
   Network, 
   Microscope, 
   Scale, 
   History,
-  Lock
+  ShieldCheck,
+  Fingerprint,
+  ChevronRight,
+  Shield
 } from 'lucide-react';
 
 interface TabItem {
@@ -23,17 +25,21 @@ interface TabItem {
 const ALL_TABS: TabItem[] = [
   // PO Tabs (Police Officer Only)
   { id: 'police_case_upload', label: 'Upload Case File Details', rolePrefix: 'PO', icon: PlusCircle },
-  { id: 'police_checkout', label: 'Station Armourer Asset Desk', rolePrefix: 'PO', icon: Package },
+  { id: 'police_integrity', label: 'Evidence Integrity Check', rolePrefix: 'PO', icon: Fingerprint },
+  { id: 'police_audit_trail', label: 'Cryptographic Audit History', rolePrefix: 'PO', icon: History },
 
   // FO Tabs (Forensic Officer Only)
   { id: 'forensic_lab_upload', label: 'Upload Forensic Report', rolePrefix: 'FO', icon: Microscope },
+  { id: 'forensic_integrity', label: 'Evidence Integrity Check', rolePrefix: 'FO', icon: Fingerprint },
 
   // IN Tabs (Investigator Only)
-  { id: 'investigator_case_search', label: 'Search Case Files & Evidence', rolePrefix: 'IN', icon: Search },
+  { id: 'investigator_case_search', label: 'Entity & Case Search', rolePrefix: 'IN', icon: Search },
+  { id: 'investigator_integrity', label: 'Evidence Integrity Check', rolePrefix: 'IN', icon: Fingerprint },
   { id: 'investigator_graph', label: 'Evidence Relational Graph', rolePrefix: 'IN', icon: Network },
 
   // LW Tabs (Lawyer / Prosecutor Only - Read Only)
   { id: 'lawyer_read_vault', label: 'Read-Only Case Disclosure Vault', rolePrefix: 'LW', icon: Scale },
+  { id: 'lawyer_integrity', label: 'Evidence Integrity Check', rolePrefix: 'LW', icon: Fingerprint },
   { id: 'lawyer_audit_trail', label: 'Cryptographic Audit History', rolePrefix: 'LW', icon: History }
 ];
 
@@ -43,32 +49,32 @@ export const Sidebar: React.FC = () => {
   if (!user) return null;
 
   const currentRoleCfg = ROLE_CONFIGS[user.prefix];
-  // Filter tabs so ONLY current officer's role tabs are displayed!
   const roleAccessibleTabs = ALL_TABS.filter(t => t.rolePrefix === user.prefix);
 
   return (
-    <aside className="w-72 shrink-0 white-panel rounded-2xl p-4 border border-slate-200 shadow-sm flex flex-col justify-between h-[calc(100vh-6rem)] sticky top-20">
+    <aside className="w-full md:w-64 shrink-0 bg-white rounded-3xl p-4.5 border border-slate-200/90 flex flex-col justify-between h-auto md:h-[calc(100vh-6rem)] md:sticky top-20 shadow-sm">
       
-      <div className="space-y-6">
+      <div className="space-y-5">
         
-        {/* Active Officer Workspace Banner */}
-        <div className={`p-4 rounded-xl border ${currentRoleCfg.accentBorder} bg-slate-50 shadow-sm space-y-2`}>
+        {/* Active Officer Workspace Header Card */}
+        <div className="p-4 rounded-2xl bg-gradient-to-br from-slate-900 via-slate-950 to-blue-950 text-white shadow-md border border-slate-800 space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 font-bold">AUTHORIZED WORKSPACE</span>
-            <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded border ${currentRoleCfg.badgeColor}`}>
-              {user.prefix} PREFIX
+            <span className="text-[9px] font-mono font-extrabold uppercase tracking-wider text-cyan-400 bg-cyan-950/80 px-2 py-0.5 rounded border border-cyan-800/60">
+              {user.prefix} WORKSPACE
             </span>
+            <Shield className="w-3.5 h-3.5 text-blue-400" />
           </div>
-          <h3 className="text-sm font-bold text-slate-900 leading-tight">{currentRoleCfg.title}</h3>
-          <p className="text-[11px] text-slate-600 leading-normal">{currentRoleCfg.clearanceLevel}</p>
+          <div>
+            <h3 className="text-xs font-bold text-white leading-snug">{currentRoleCfg.title}</h3>
+            <p className="text-[10px] text-slate-400 font-mono mt-0.5">{user.station}</p>
+          </div>
         </div>
 
-        {/* Dynamic Nav Items strictly isolated to this Officer's Role */}
-        <div className="space-y-2">
-          <div className="text-[11px] font-bold text-slate-500 tracking-wider px-2 uppercase font-mono">
-            {currentRoleCfg.title} Web Pages
+        {/* Dynamic Navigation Tabs */}
+        <div className="space-y-1.5">
+          <div className="px-1 text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400">
+            Navigation Menu
           </div>
-
           {roleAccessibleTabs.map((tab) => {
             const isSelected = activeTab === tab.id;
             const Icon = tab.icon;
@@ -77,33 +83,36 @@ export const Sidebar: React.FC = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`w-full px-3.5 py-3 rounded-xl text-xs font-semibold flex items-center justify-between transition-all cursor-pointer ${
+                className={`w-full px-3.5 py-3 rounded-2xl text-xs font-semibold flex items-center justify-between transition-all cursor-pointer group ${
                   isSelected
-                    ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20'
-                    : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900 border border-transparent'
+                    ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-600/25 border border-blue-500/30'
+                    : 'text-slate-700 hover:bg-slate-100/90 hover:text-slate-950 border border-transparent'
                 }`}
               >
                 <div className="flex items-center gap-3 truncate">
-                  <Icon className={`w-4 h-4 shrink-0 ${isSelected ? 'text-white' : 'text-slate-500'}`} />
+                  <div className={`p-1.5 rounded-xl transition-colors ${
+                    isSelected ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600 group-hover:bg-slate-200 group-hover:text-slate-900'
+                  }`}>
+                    <Icon className="w-4 h-4 shrink-0" />
+                  </div>
                   <span className="truncate">{tab.label}</span>
                 </div>
+                {isSelected && (
+                  <ChevronRight className="w-3.5 h-3.5 text-blue-200 shrink-0 ml-1" />
+                )}
               </button>
             );
           })}
         </div>
 
-        {/* Security Isolation Notice */}
-        <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-[11px] text-slate-600 space-y-1">
-          <div className="flex items-center gap-1.5 font-bold text-slate-800">
-            <Lock className="w-3.5 h-3.5 text-blue-600" /> Strict Role Isolation
-          </div>
-          <p>Other officer web pages are hidden and inaccessible without logging in with their ID & password.</p>
-        </div>
-
       </div>
 
-      <div className="pt-4 border-t border-slate-200 text-[11px] text-slate-400 text-center font-mono">
-        SI-PALMS SECURITY SPEC
+      {/* System Status Security Badge */}
+      <div className="pt-3.5 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-500 font-mono">
+        <span className="flex items-center gap-1.5 font-bold text-slate-700">
+          <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" /> Security Seal Active
+        </span>
+        <span className="text-[9px] text-slate-400 font-semibold">v2.4</span>
       </div>
 
     </aside>

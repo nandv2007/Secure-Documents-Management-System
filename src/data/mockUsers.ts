@@ -10,7 +10,7 @@ export const ROLE_CONFIGS: Record<RolePrefix, RoleConfig> = {
     accentBorder: 'border-blue-500',
     iconName: 'Shield',
     description: 'Upload case file details & evidence anytime for assigned cases.',
-    allowedWorkspaces: ['police_case_upload', 'police_checkout'],
+    allowedWorkspaces: ['police_case_upload', 'police_integrity', 'police_audit_trail'],
     primaryActions: [
       'Upload New Case Details & Files',
       'Attach Incident Reports & Seizure Memos',
@@ -26,7 +26,7 @@ export const ROLE_CONFIGS: Record<RolePrefix, RoleConfig> = {
     accentBorder: 'border-amber-500',
     iconName: 'Search',
     description: 'Open & view uploaded case files, traverse evidence graphs, and review officer custody histories.',
-    allowedWorkspaces: ['investigator_case_search', 'investigator_graph'],
+    allowedWorkspaces: ['investigator_case_search', 'investigator_integrity', 'investigator_graph'],
     primaryActions: [
       'Open & Inspect Uploaded Case Files',
       'Inspect Case Relational Link Graph',
@@ -42,7 +42,7 @@ export const ROLE_CONFIGS: Record<RolePrefix, RoleConfig> = {
     accentBorder: 'border-emerald-500',
     iconName: 'Microscope',
     description: 'Upload completed forensic lab analysis reports for assigned cases.',
-    allowedWorkspaces: ['forensic_lab_upload'],
+    allowedWorkspaces: ['forensic_lab_upload', 'forensic_integrity'],
     primaryActions: [
       'Upload Laboratory Analysis Reports'
     ]
@@ -56,7 +56,7 @@ export const ROLE_CONFIGS: Record<RolePrefix, RoleConfig> = {
     accentBorder: 'border-purple-500',
     iconName: 'Scale',
     description: 'Strict Read-Only Vault. Open & view uploaded case documents for court disclosure. Cannot upload or edit files.',
-    allowedWorkspaces: ['lawyer_read_vault', 'lawyer_audit_trail'],
+    allowedWorkspaces: ['lawyer_read_vault', 'lawyer_integrity', 'lawyer_audit_trail'],
     primaryActions: [
       'Open & View Uploaded Case Documents',
       'Verify Cryptographic SHA-256 Seals',
@@ -72,6 +72,8 @@ export const INITIAL_CASES: Record<string, CaseRecord> = {
     incidentLocation: 'Sector 14 Financial Quarter',
     status: 'OPEN_INVESTIGATION',
     assignedOfficerIds: ['PO-1042', 'IN-8805', 'FO-4091', 'LW-9120'],
+    assignedLawyerId: 'LW-9120',
+    assignedLawyerName: 'Advocate Meera Deshmukh',
     uploadedFiles: [] // START CLEAN WITH ZERO PRE-FILLED FILES
   },
   'CASE-103': {
@@ -79,7 +81,9 @@ export const INITIAL_CASES: Record<string, CaseRecord> = {
     title: 'Downtown Commercial Financial Fraud',
     incidentLocation: 'Metro Bank Tower #02',
     status: 'FORENSIC_REVIEW',
-    assignedOfficerIds: ['PO-2055', 'IN-8805', 'FO-4091', 'LW-9120'],
+    assignedOfficerIds: ['PO-2055', 'IN-8805', 'FO-4091'],
+    assignedLawyerId: null,
+    assignedLawyerName: null,
     uploadedFiles: [] // START CLEAN WITH ZERO PRE-FILLED FILES
   },
   'CASE-104': {
@@ -87,7 +91,9 @@ export const INITIAL_CASES: Record<string, CaseRecord> = {
     title: 'High-Tech Cyber Intrusion & Ransomware',
     incidentLocation: 'State Server Data Center',
     status: 'OPEN_INVESTIGATION',
-    assignedOfficerIds: ['PO-1042', 'IN-8805', 'LW-9120'],
+    assignedOfficerIds: ['PO-1042', 'IN-8805'],
+    assignedLawyerId: null,
+    assignedLawyerName: null,
     uploadedFiles: [] // START CLEAN WITH ZERO PRE-FILLED FILES
   }
 };
